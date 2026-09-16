@@ -1,0 +1,58 @@
+from pathlib import Path
+
+from hydra import compose, initialize_config_dir
+from hydra.core.global_hydra import GlobalHydra
+from unilab.base import registry
+from unilab.base.config_adapter import BackendAdapter
+from unilab.base.config_materialization import apply_cfg_overrides
+from unilab.cli import package_root
+from unilab.envs import ManagerBasedRlEnvCfg
+
+ROOT = Path(__file__).resolve().parents[1]
+JOINTS = (
+    "left_leg_hip_yaw_joint", "left_leg_hip_roll_joint", "left_leg_hip_pitch_joint",
+    "left_leg_knee_pitch_joint", "left_leg_ankle_pitch_joint",
+    "right_leg_hip_yaw_joint", "right_leg_hip_roll_joint", "right_leg_hip_pitch_joint",
+    "right_leg_knee_pitch_joint", "right_leg_ankle_pitch_joint",
+)
+
+
+def materialize():
+    GlobalHydra.instance().clear()
+    with initialize_config_dir(config_dir=str(package_root() / "conf" / "sac"), version_base="1.3"):
+        cfg = compose("config", overrides=["task=walk-flat/mujoco"])
+    registry.ensure_registries()
+    override = BackendAdapter(cfg, root_dir=ROOT, algo_name="sac").build_task_env_cfg_override()
+    env_cfg = registry.materialize_env_config("TinkerWalkFlat")
+    apply_cfg_overrides(env_cfg, override)
+    env_cfg.validate()
+    return cfg, env_cfg
+
+
+def test_owner_materializes():
+    cfg, env_cfg = materialize()
+    assert isinstance(env_cfg, ManagerBasedRlEnvCfg)
+    assert cfg.training.task_name == "TinkerWalkFlat"
+    assert cfg.training.sim_backend == "mujoco"
+    assert cfg.algo.num_envs == 2048
+    assert cfg.algo.max_iterations == 10000
+    assert cfg.algo.batch_size == 2048
+    assert cfg.algo.updates_per_step == 4
+    assert env_cfg.sim_dt == 0.005
+    assert env_cfg.ctrl_dt == 0.02
+    assert env_cfg.max_episode_seconds == 20.0
+    assert env_cfg.scene.model_file.endswith("assets/robots/tinker_lingzu/mjcf/scene_flat.xml")
+    robot = env_cfg.scene.entities["robot"]
+    assert tuple(robot.joint_names) == JOINTS
+    assert tuple(robot.actuator_names) == JOINTS
+    assert env_cfg.actions["joint_pos"].scale == 0.5
+    assert tuple(env_cfg.commands["twist"].ranges.lin_vel_x) == (-1.0, 1.0)
+    assert set(env_cfg.observations) == {"policy", "critic"}
+    assert set(env_cfg.rewards) >= {"tracking_lin_vel", "feet_phase", "alive"}
+
+
+def test_registry_exposes_mujoco_task():
+    registry.ensure_registries()
+    registered = registry.list_registered_envs()
+    assert "TinkerWalkFlat" in registered
+    assert "mujoco" in registered["TinkerWalkFlat"]["available_backends"]

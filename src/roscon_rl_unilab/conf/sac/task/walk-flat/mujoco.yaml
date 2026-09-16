@@ -1,0 +1,27 @@
+# @package _global_
+defaults:
+  - /task/walk-flat/base
+  - _self_
+
+training:
+  task_name: TinkerWalkFlat
+  sim_backend: mujoco
+  play_env_num: 16
+  cam_distance: 3.0
+  cam_elevation: -20.0
+  cam_azimuth: 180.0
+
+algo:
+  num_envs: 2048
+  batch_size: 2048
+  replay_buffer_n: 1024
+  learning_starts: 10
+  max_iterations: 10000
+  save_interval: 1000
+  updates_per_step: 4
+  obs_normalization: true
+  algo_params:
+    alpha_init: 0.01
+    target_entropy_ratio: -0.1
+    amp_dtype: bf16
+    use_compile: true
