@@ -173,14 +173,14 @@ env:
 reward:
   tracking_lin_vel:
     func: unilab.tasks.locomotion.common.sensor_reward_terms.track_lin_vel
-    weight: 2.0
+    weight: 4.0
     params:
       tracking_sigma: 0.25
       command_name: twist
       sensor_name: pelvis_local_linvel
   tracking_ang_vel:
     func: unilab.tasks.locomotion.common.sensor_reward_terms.track_ang_vel
-    weight: 1.5
+    weight: 3.0
     params:
       tracking_sigma: 0.25
       command_name: twist
@@ -215,7 +215,7 @@ reward:
       frequency: 1.0
       swing_height: 0.05
       tracking_sigma: 0.008
-      min_forward_speed: 0.0
+      min_forward_speed: 0.15
       command_name: twist
   alive:
     func: unilab.tasks.locomotion.common.manager_terms.alive

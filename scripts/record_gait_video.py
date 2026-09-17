@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+"""Roll out the trained FastSAC policy and software-render a gait video.
+
+UniLab's built-in recorder needs a working MuJoCo GL context at env-build
+time. On this MI210 host that path is skipped, so we cache physics snapshots
+during policy rollout and render them afterwards with OSMesa.
+"""
+
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+os.environ.setdefault("UNILAB_EXTRA_REGISTRY_PACKAGES", "roscon_rl_unilab.tasks")
+
+import numpy as np
+
+from hydra import compose, initialize_config_dir
+from hydra.core.global_hydra import GlobalHydra
+from unilab.base.config_adapter import create_env
+from unilab.cli import package_root
+from unilab.scripts.train_offpolicy import build_offpolicy_play_env_cfg_override
+from unilab.visualization.interactive_playback import (
+    RslRlPlaybackConfig,
+    create_sac_playback_session,
+)
+from roscon_rl_unilab.conf_searchpath import register_conf_search_path
+
+REPO = Path(__file__).resolve().parents[1]
+DEFAULT_RUN = REPO / "roscon/train/2026-09-17_11-54-30_mujoco"
+DEFAULT_STEPS = 400
+FPS = 50
+
+
+def compose_cfg(run_dir: Path):
+    register_conf_search_path()
+    GlobalHydra.instance().clear()
+    with initialize_config_dir(config_dir=str(package_root() / "conf" / "sac"), version_base="1.3"):
+        return compose(
+            "config",
+            overrides=[
+                "task=walk-flat/mujoco",
+                f"algo.load_run={run_dir}",
+                "training.play_env_num=1",
+                "training.export_onnx=false",
+                # Match the aligned eval protocol so the clip is a straight run.
+                "env.events.reset_root_state_uniform.params.pose_range.yaw=[0,0]",
+                "env.events.reset_root_state_uniform.params.velocity_range.x=[0,0]",
+                "env.events.reset_root_state_uniform.params.velocity_range.y=[0,0]",
+                "env.events.reset_root_state_uniform.params.velocity_range.z=[0,0]",
+                "env.events.reset_root_state_uniform.params.velocity_range.roll=[0,0]",
+                "env.events.reset_root_state_uniform.params.velocity_range.pitch=[0,0]",
+                "env.events.reset_root_state_uniform.params.velocity_range.yaw=[0,0]",
+                "env.events.pd_gains.params.kp_range=[1.0,1.0]",
+                "env.events.pd_gains.params.kd_range=[1.0,1.0]",
+            ],
+        )
+
+
+def rollout(run_dir: Path, steps: int) -> np.ndarray:
+    cfg = compose_cfg(run_dir)
+    override = build_offpolicy_play_env_cfg_override("sac", cfg)
+    session, _, ckpt = create_sac_playback_session(
+        playback_cfg=RslRlPlaybackConfig(
+            task=str(cfg.training.task_name),
+            load_run=str(run_dir),
+            checkpoint=None,
+            action_mode="policy",
+            policy_obs_mode="actor",
+            algo_log_name=str(cfg.algo.algo_log_name),
+            log_root=None,
+            num_envs=1,
+        ),
+        cfg=cfg,
+        env_factory=lambda n: create_env(cfg, num_envs=n, env_cfg_override=override),
+        root_dir=REPO,
+        device="cuda",
+        algo_name="sac",
+    )
+    if ckpt is None:
+        raise SystemExit("checkpoint was not loaded")
+    session.reset()
+    twist = session.env.command_manager.get_term("twist")
+    twist.vel_command_b[:] = (0.6, 0.0, 0.0)
+    twist.is_standing_env[:] = False
+    print("forced command vx=0.6 m/s")
+    snaps = [session.physics_state().copy()]
+    for _ in range(steps):
+        session.step_once()
+        snaps.append(session.physics_state().copy())
+    arr = np.stack(snaps, axis=0)
+    print(f"captured {arr.shape} snapshots from {ckpt}")
+    return arr
+
+
+def _apply_snapshot(model, data, snapshot: np.ndarray) -> None:
+    import mujoco
+
+    flat = np.asarray(snapshot, dtype=np.float64).reshape(-1)
+    spec = mujoco.mjtState.mjSTATE_FULLPHYSICS
+    expected = mujoco.mj_stateSize(model, spec)
+    if flat.size != expected:
+        raise ValueError(f"snapshot size {flat.size} != FULLPHYSICS {expected}")
+    mujoco.mj_setState(model, data, flat, spec)
+    mujoco.mj_forward(model, data)
+
+
+def render_video(snapshots: np.ndarray, out_path: Path) -> None:
+    import imageio.v2 as imageio
+    import mujoco
+
+    xml = REPO / "assets/robots/tinker_lingzu/mjcf/scene_flat.xml"
+    model = mujoco.MjModel.from_xml_path(str(xml))
+    model.vis.global_.offwidth = 960
+    model.vis.global_.offheight = 540
+    data = mujoco.MjData(model)
+    renderer = mujoco.Renderer(model, height=540, width=960)
+    cam = mujoco.MjvCamera()
+    mujoco.mjv_defaultCamera(cam)
+    cam.azimuth = 140.0
+    cam.elevation = -20.0
+    cam.distance = 1.6
+    frames = []
+    for i, snap in enumerate(snapshots):
+        _apply_snapshot(model, data, snap)
+        cam.lookat[:] = data.qpos[:3]
+        renderer.update_scene(data, camera=cam)
+        frames.append(renderer.render().copy())
+        if i % 50 == 0:
+            print(f"rendered {i}/{len(snapshots)}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    imageio.mimsave(out_path, frames, fps=FPS)
+    print(f"wrote {out_path} ({len(frames)} frames, {FPS} fps)")
+
+
+def main() -> None:
+    run_dir = Path(os.environ.get("TINKER_RUN_DIR", DEFAULT_RUN)).resolve()
+    steps = int(os.environ.get("TINKER_PLAY_STEPS", DEFAULT_STEPS))
+    mode = os.environ.get("TINKER_RECORD_MODE", "all")
+    snap_path = run_dir / "play_qpos.npy"
+    video_path = run_dir / "play_video.mp4"
+    if mode in {"rollout", "all"}:
+        snapshots = rollout(run_dir, steps)
+        np.save(snap_path, snapshots)
+        print(f"saved {snap_path}")
+    else:
+        snapshots = np.load(snap_path)
+    if mode in {"render", "all"}:
+        render_video(snapshots, video_path)
+
+
+if __name__ == "__main__":
+    main()

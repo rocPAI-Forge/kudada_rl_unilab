@@ -57,6 +57,26 @@ uv run --extra rocm roscon-train --algo sac --task walk-flat --sim mujoco \
 uv run --extra rocm roscon-eval --algo sac --task walk-flat --sim mujoco --load-run -1
 ```
 
+从已有 checkpoint 续训（默认加载归档的最终策略）：
+
+```bash
+export HIP_VISIBLE_DEVICES=0
+uv run --extra rocm roscon-continue --algo sac --task walk-flat --sim mujoco \
+  --load-run roscon/train/2026-09-17_11-54-30_mujoco \
+  algo.max_iterations=10000 training.log_root=runs
+```
+
+步态视频（OSMesa，无显示）：
+
+```bash
+export HIP_VISIBLE_DEVICES=0 MUJOCO_GL=osmesa
+TINKER_RUN_DIR=roscon/train/2026-09-17_11-54-30_mujoco \
+  uv run --extra rocm python scripts/record_gait_video.py
+```
+
+归档的训练资产、步态视频、以及与 MotrixLab/`tinkerbot_rl` 的吞吐/延迟/精度对比见
+[`roscon/COMPARISON.md`](roscon/COMPARISON.md)。
+
 ## 测试
 
 ```bash
