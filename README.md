@@ -75,11 +75,13 @@ TINKER_RUN_DIR=roscon/train/2026-09-17_11-54-30_mujoco \
 ```
 
 归档的训练资产、步态视频、以及与 MotrixLab/`tinkerbot_rl` 的吞吐/延迟/精度对比见
-[`roscon/COMPARISON.md`](roscon/COMPARISON.md)。
+[`roscon/COMPARISON.md`](roscon/COMPARISON.md)。合格步态（配置、参数快照、policy、视频）如何分目录见
+[`roscon/ASSETS.md`](roscon/ASSETS.md)。
 
 ## 其它步态
 
-除 `walk-flat` 外还有三个步态任务，最终策略归档在 `roscon/gaits/`：
+除 `walk-flat` 外还有三个步态任务。每个合格步态的完整资产在 `roscon/gaits/<task>/`：
+`task.yaml`（训练/奖励设计）、`run_config.json`（该次训练展开后的参数）、`model_10000.pt`、`play.mp4`。
 
 | 任务 | 说明 | 录制命令的关键环境变量 |
 | --- | --- | --- |

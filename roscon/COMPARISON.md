@@ -59,7 +59,7 @@ gated at `vxâ‰¥0.15`. Continue 2: load that checkpoint, `tracking_ang_vel` 1.5â†
 
 | | Motrix | UniLab first | UniLab continue 2 |
 |---|---|---|---|
-| Clip | `tinkerbot_rl/roscon/renders/tinker_walk.mp4` | `renders/tinker_walk_unilab.mp4` | `roscon/renders/tinker_walk.mp4` |
+| Clip | `tinkerbot_rl/roscon/renders/tinker_walk.mp4` | first-run (not archived as accepted) | `roscon/gaits/walk-flat/play.mp4` |
 | Net displacement | ~4.8 m at vx=0.8 cmd | 1.51 m | **3.90 m** |
 | Path / mean speed | ~0.60 / 0.8 m/s (75%) | ~0.19 m/s (31%) | **4.07 m / 0.51 m/s (82%)** |
 
