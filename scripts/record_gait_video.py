@@ -27,17 +27,13 @@ from unilab.visualization.interactive_playback import (
 from kudada_rl_unilab.conf_searchpath import register_conf_search_path
 
 REPO = Path(__file__).resolve().parents[1]
-DEFAULT_RUN = REPO / "roscon/train/2026-09-17_11-54-30_mujoco"
+DEFAULT_RUN = REPO / "roscon/gaits/walk-flat"
 DEFAULT_STEPS = 400
 FPS = 50
 
 
 def _env(name: str, default: str | None = None) -> str | None:
-    for prefix in ("KUDADA_", "TINKER_"):
-        key = prefix + name
-        if key in os.environ:
-            return os.environ[key]
-    return default
+    return os.environ.get("KUDADA_" + name, default)
 
 
 def compose_cfg(run_dir: Path, task: str):

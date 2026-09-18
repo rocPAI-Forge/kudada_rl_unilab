@@ -28,11 +28,6 @@ from unilab.tasks.locomotion.g1.manager_terms import (
     weighted_pose,
 )
 
-TinkerGaitPhase = KudadaGaitPhase
-TinkerPenaltyCurriculum = KudadaPenaltyCurriculum
-TinkerVelocityCommand = KudadaVelocityCommand
-TinkerVelocityCommandCfg = KudadaVelocityCommandCfg
-
 if TYPE_CHECKING:
     from unilab.managers._types import ManagerBasedRlEnv
 
@@ -43,10 +38,6 @@ __all__ = [
     "KudadaPenaltyCurriculum",
     "KudadaVelocityCommand",
     "KudadaVelocityCommandCfg",
-    "TinkerGaitPhase",
-    "TinkerPenaltyCurriculum",
-    "TinkerVelocityCommand",
-    "TinkerVelocityCommandCfg",
     "feet_phase",
     "penalty_close_feet_xy",
     "penalty_feet_ori",

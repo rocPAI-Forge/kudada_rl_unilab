@@ -27,7 +27,6 @@ kudada-continue = "kudada_rl_unilab.cli:continue_main"
 
 [project.entry-points."unilab.tasks"]
 kudada = "kudada_rl_unilab.tasks"
-roscon = "kudada_rl_unilab.tasks"
 
 [dependency-groups]
 dev = ["pytest>=8.0"]

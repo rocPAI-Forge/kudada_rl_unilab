@@ -25,4 +25,5 @@ start_job() {
 start_job 0 crouch-walk 1
 start_job 1 lateral-walk 2
 start_job 2 march-recover 3
-echo "started crouch/lateral/march on GPUs 0/1/2 (GPU 3 unused)"
+start_job 3 walk-flat 4
+echo "started all Kudada gaits on GPUs 0/1/2/3"

@@ -1,16 +1,16 @@
 {
   "run": {
     "algo": "sac",
-    "task": "TinkerCrouchWalk",
+    "task": "KudadaCrouchWalk",
     "sim_backend": "mujoco",
     "device": "cuda",
     "collector_device": null,
-    "log_dir": "/home/alex/data/Repo/roscon_rl_unilab/runs/TinkerCrouchWalk/2026-09-18_07-44-52_mujoco",
-    "start_time_utc": "2026-09-17T23:44:52.218939+00:00",
+    "log_dir": "/home/alex/data/Repo/kudada_rl_unilab/runs/KudadaCrouchWalk/2026-09-18_17-51-07_mujoco",
+    "start_time_utc": "2026-09-18T09:51:07.633523+00:00",
     "hostname": "acc",
     "user": "opea",
     "git": {
-      "commit": "8cb05f8896ac1a709dd153c4d04bd86f357e397d",
+      "commit": "1d36f737c1ec1d3ecb396e3ae697afb7bbb3c02c",
       "branch": "main",
       "dirty": true
     },
@@ -28,12 +28,12 @@
     "wandb": {
       "project": "unilab",
       "entity": null,
-      "name": "sac__TinkerCrouchWalk__2026-09-18_07-44-52_mujoco",
-      "group": "TinkerCrouchWalk",
+      "name": "sac__KudadaCrouchWalk__2026-09-18_17-51-07_mujoco",
+      "group": "KudadaCrouchWalk",
       "job_type": "sac",
       "tags": [
         "sac",
-        "TinkerCrouchWalk",
+        "KudadaCrouchWalk",
         "mujoco",
         "user-opea"
       ],
@@ -50,7 +50,7 @@
       "algo_log_name": "fast_sac",
       "runtime_impl": null,
       "runtime_resolver": null,
-      "load_run": "runs/TinkerCrouchWalk/2026-09-18_07-38-37_mujoco",
+      "load_run": "-1",
       "seed": 1,
       "num_envs": 2048,
       "batch_size": 2048,
@@ -84,7 +84,7 @@
       }
     },
     "training": {
-      "task_name": "TinkerCrouchWalk",
+      "task_name": "KudadaCrouchWalk",
       "devices": null,
       "dp_collector_cpu_ids": null,
       "logger": "tensorboard",
@@ -165,7 +165,7 @@
     },
     "env": {
       "scene": {
-        "model_file": "assets/robots/tinker_lingzu/mjcf/scene_flat.xml",
+        "model_file": "assets/robots/kudada/mjcf/scene_flat.xml",
         "default_keyframe_name": "home",
         "entities": {
           "robot": {
@@ -252,7 +252,7 @@
               }
             },
             "gait_phase": {
-              "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase",
+              "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase",
               "params": {
                 "frequency": 1.0,
                 "init_mode": "offset_phase"
@@ -301,7 +301,7 @@
               }
             },
             "gait_phase": {
-              "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase",
+              "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase",
               "params": {
                 "frequency": 1.0,
                 "init_mode": "offset_phase"
@@ -336,7 +336,7 @@
       },
       "commands": {
         "twist": {
-          "_target_": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerVelocityCommandCfg",
+          "_target_": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaVelocityCommandCfg",
           "entity_name": "robot",
           "resampling_time_range": [
             10.0,
@@ -366,7 +366,7 @@
           }
         },
         "height": {
-          "_target_": "roscon_rl_unilab.tasks.tinker.manager_terms.HeightCommandCfg",
+          "_target_": "kudada_rl_unilab.tasks.kudada.manager_terms.HeightCommandCfg",
           "resampling_time_range": [
             10.0,
             10.0
@@ -462,7 +462,7 @@
           "time_out": true
         },
         "tilt": {
-          "func": "roscon_rl_unilab.tasks.tinker.manager_terms.tilt_exceeded",
+          "func": "kudada_rl_unilab.tasks.kudada.manager_terms.tilt_exceeded",
           "params": {
             "max_tilt_deg": 65.0
           }
@@ -476,7 +476,7 @@
       },
       "curriculum": {
         "penalty_scaling": {
-          "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerPenaltyCurriculum",
+          "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaPenaltyCurriculum",
           "params": {
             "initial_scale": 0.5,
             "min_scale": 0.5,
@@ -528,7 +528,7 @@
         "weight": -2.0
       },
       "pose": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.weighted_pose",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.weighted_pose",
         "weight": -0.3,
         "params": {
           "pose_weights": [
@@ -546,18 +546,18 @@
         }
       },
       "penalty_close_feet_xy": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.penalty_close_feet_xy",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.penalty_close_feet_xy",
         "weight": -10.0,
         "params": {
           "threshold": 0.15
         }
       },
       "penalty_feet_ori": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.penalty_feet_ori",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.penalty_feet_ori",
         "weight": -5.0
       },
       "feet_phase": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.feet_phase",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.feet_phase",
         "weight": 5.0,
         "params": {
           "frequency": 1.0,
@@ -572,7 +572,7 @@
         "weight": 10.0
       },
       "tracking_height": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.track_base_height",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.track_base_height",
         "weight": 10.0,
         "params": {
           "command_name": "height",
@@ -580,14 +580,14 @@
         }
       },
       "penalty_height_error": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.penalty_base_height_error",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.penalty_base_height_error",
         "weight": -80.0,
         "params": {
           "command_name": "height"
         }
       },
       "track_crouch_pose": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.track_crouch_pose",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.track_crouch_pose",
         "weight": 6.0,
         "params": {
           "joint_targets": [
@@ -606,7 +606,7 @@
         }
       },
       "penalty_crouch_pose": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.penalty_crouch_pose_error",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.penalty_crouch_pose_error",
         "weight": -12.0,
         "params": {
           "joint_targets": [
@@ -636,7 +636,7 @@
         }
       },
       "penalty_wide_feet": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.penalty_wide_feet_xy",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.penalty_wide_feet_xy",
         "weight": -80.0,
         "params": {
           "max_width": 0.28
@@ -694,7 +694,7 @@
             }
           },
           "gait_phase": {
-            "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase",
+            "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase",
             "params": {
               "frequency": 1.0,
               "init_mode": "offset_phase"
@@ -743,7 +743,7 @@
             }
           },
           "gait_phase": {
-            "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase",
+            "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase",
             "params": {
               "frequency": 1.0,
               "init_mode": "offset_phase"

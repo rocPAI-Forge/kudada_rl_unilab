@@ -21,12 +21,12 @@
 
 | 目录 | 任务名 | 策略要点 | 视频也拷了一份到 |
 | --- | --- | --- | --- |
-| `gaits/walk-flat/` | `KudadaWalkFlat` | 平地跟踪 `[vx, vy, yaw]`；最终是 continue-2（lin/ang 跟踪加强） | `roscon/renders/kudada_walk.mp4` |
+| `gaits/walk-flat/` | `KudadaWalkFlat` | 平地跟踪 `[vx, vy, yaw]`；Kudada 从零训练后续训一轮 | `roscon/renders/kudada_walk.mp4` |
 | `gaits/crouch-walk/` | `KudadaCrouchWalk` | 屈膝降重心：蹲姿关节误差 + 横向脚距惩罚 + action scale 0.8 | `roscon/renders/kudada_crouch_walk.mp4` |
 | `gaits/lateral-walk/` | `KudadaLateralWalk` | 主指令是 `vy`，限制 `vx`/`yaw` | `roscon/renders/kudada_lateral_walk.mp4` |
 | `gaits/march-recover/` | `KudadaMarchRecover` | 原地高抬腿 + 训练中随机推，回放固定侧向推力 | `roscon/renders/kudada_march_recover.mp4` |
 
-walk-flat 的对比实验（第一轮 10k、continue-1、continue-2 全量 checkpoint）仍放在 `roscon/train/`，见 `COMPARISON.md`。`gaits/walk-flat/` 只收**最终合格**那一套。
+旧 Tinker 命名下的训练目录与 checkpoint 已移除；`gaits/` 里四套均由 `Kudada*` 任务重新训练产生。历史性能对比数据仍记录在 `COMPARISON.md`。
 
 外形截图保存在 `roscon/renders/kudada_views.png`（正/侧/背三视图，项目 README 引用）。步态观感以各目录的 `play.mp4` 为准。
 

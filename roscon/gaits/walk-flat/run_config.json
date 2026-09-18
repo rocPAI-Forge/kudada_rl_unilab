@@ -1,16 +1,16 @@
 {
   "run": {
     "algo": "sac",
-    "task": "TinkerWalkFlat",
+    "task": "KudadaWalkFlat",
     "sim_backend": "mujoco",
     "device": "cuda",
     "collector_device": null,
-    "log_dir": "/home/alex/data/Repo/roscon_rl_unilab/runs/TinkerWalkFlat/2026-09-17_11-54-30_mujoco",
-    "start_time_utc": "2026-09-17T03:54:30.823864+00:00",
+    "log_dir": "/home/alex/data/Repo/kudada_rl_unilab/runs/KudadaWalkFlat/2026-09-18_17-59-22_mujoco",
+    "start_time_utc": "2026-09-18T09:59:22.814307+00:00",
     "hostname": "acc",
     "user": "opea",
     "git": {
-      "commit": "84ddd34733b436ead1dd8c69af4f00fc7c876994",
+      "commit": "1d36f737c1ec1d3ecb396e3ae697afb7bbb3c02c",
       "branch": "main",
       "dirty": true
     },
@@ -28,12 +28,12 @@
     "wandb": {
       "project": "unilab",
       "entity": null,
-      "name": "sac__TinkerWalkFlat__2026-09-17_11-54-30_mujoco",
-      "group": "TinkerWalkFlat",
+      "name": "sac__KudadaWalkFlat__2026-09-18_17-59-22_mujoco",
+      "group": "KudadaWalkFlat",
       "job_type": "sac",
       "tags": [
         "sac",
-        "TinkerWalkFlat",
+        "KudadaWalkFlat",
         "mujoco",
         "user-opea"
       ],
@@ -50,7 +50,7 @@
       "algo_log_name": "fast_sac",
       "runtime_impl": null,
       "runtime_resolver": null,
-      "load_run": "/home/opea/data/Repo/roscon_rl_unilab/runs/TinkerWalkFlat/2026-09-17_11-40-34_mujoco",
+      "load_run": "runs/KudadaWalkFlat/2026-09-18_17-51-07_mujoco",
       "seed": 1,
       "num_envs": 2048,
       "batch_size": 2048,
@@ -84,7 +84,7 @@
       }
     },
     "training": {
-      "task_name": "TinkerWalkFlat",
+      "task_name": "KudadaWalkFlat",
       "devices": null,
       "dp_collector_cpu_ids": null,
       "logger": "tensorboard",
@@ -165,7 +165,7 @@
     },
     "env": {
       "scene": {
-        "model_file": "assets/robots/tinker_lingzu/mjcf/scene_flat.xml",
+        "model_file": "assets/robots/kudada/mjcf/scene_flat.xml",
         "default_keyframe_name": "home",
         "entities": {
           "robot": {
@@ -252,7 +252,7 @@
               }
             },
             "gait_phase": {
-              "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase",
+              "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase",
               "params": {
                 "frequency": 1.0,
                 "init_mode": "offset_phase"
@@ -295,7 +295,7 @@
               }
             },
             "gait_phase": {
-              "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase",
+              "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase",
               "params": {
                 "frequency": 1.0,
                 "init_mode": "offset_phase"
@@ -324,7 +324,7 @@
       },
       "commands": {
         "twist": {
-          "_target_": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerVelocityCommandCfg",
+          "_target_": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaVelocityCommandCfg",
           "entity_name": "robot",
           "resampling_time_range": [
             10.0,
@@ -439,7 +439,7 @@
           "time_out": true
         },
         "tilt": {
-          "func": "roscon_rl_unilab.tasks.tinker.manager_terms.tilt_exceeded",
+          "func": "kudada_rl_unilab.tasks.kudada.manager_terms.tilt_exceeded",
           "params": {
             "max_tilt_deg": 65.0
           }
@@ -453,7 +453,7 @@
       },
       "curriculum": {
         "penalty_scaling": {
-          "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerPenaltyCurriculum",
+          "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaPenaltyCurriculum",
           "params": {
             "initial_scale": 0.5,
             "min_scale": 0.5,
@@ -505,7 +505,7 @@
         "weight": -2.0
       },
       "pose": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.weighted_pose",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.weighted_pose",
         "weight": -0.5,
         "params": {
           "pose_weights": [
@@ -523,18 +523,18 @@
         }
       },
       "penalty_close_feet_xy": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.penalty_close_feet_xy",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.penalty_close_feet_xy",
         "weight": -10.0,
         "params": {
           "threshold": 0.15
         }
       },
       "penalty_feet_ori": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.penalty_feet_ori",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.penalty_feet_ori",
         "weight": -5.0
       },
       "feet_phase": {
-        "func": "roscon_rl_unilab.tasks.tinker.manager_terms.feet_phase",
+        "func": "kudada_rl_unilab.tasks.kudada.manager_terms.feet_phase",
         "weight": 5.0,
         "params": {
           "frequency": 1.0,
@@ -600,7 +600,7 @@
             }
           },
           "gait_phase": {
-            "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase",
+            "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase",
             "params": {
               "frequency": 1.0,
               "init_mode": "offset_phase"
@@ -643,7 +643,7 @@
             }
           },
           "gait_phase": {
-            "func": "roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase",
+            "func": "kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase",
             "params": {
               "frequency": 1.0,
               "init_mode": "offset_phase"

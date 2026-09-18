@@ -1,4 +1,4 @@
-# Tinker walk-flat: MotrixLab vs UniLab
+# Kudada walk-flat: MotrixLab vs UniLab
 
 Same 10-DoF Kudada velocity-tracking task, same FastSAC budget
 (2048 envs × 10k iter, batch 2048, 4 updates/step), same MI210, seed 1,
@@ -63,13 +63,12 @@ gated at `vx≥0.15`. Continue 2: load that checkpoint, `tracking_ang_vel` 1.5�
 | Net displacement | ~4.8 m at vx=0.8 cmd | 1.51 m | **3.90 m** |
 | Path / mean speed | ~0.60 / 0.8 m/s (75%) | ~0.19 m/s (31%) | **4.07 m / 0.51 m/s (82%)** |
 
-## Archived runs (this repo)
+## Archived policy (this repo)
 
-| Run | Role | Path |
-|---|---|---|
-| `2026-09-17_09-29-01_mujoco` | first 10k, matched-budget baseline | `roscon/train/2026-09-17_09-29-01_mujoco/` (`model_10000.pt`) |
-| `2026-09-17_11-40-34_mujoco` | continue 1, speed | `roscon/train/2026-09-17_11-40-34_mujoco/` (`model_10000.pt`) |
-| `2026-09-17_11-54-30_mujoco` | continue 2, final policy | `roscon/train/2026-09-17_11-54-30_mujoco/` (all `model_*.pt`) |
+The pre-rename Tinker checkpoints were removed after the Kudada-only retrain.
+The accepted Kudada walk-flat policy, frozen configuration, summary, and video
+are all under `roscon/gaits/walk-flat/`. Historical benchmark numbers above are
+kept for comparison only.
 
 Motrix counterpart: `tinkerbot_rl` branch `roscon`,
 `roscon/train/26-09-16_11-00-26-017005/`.

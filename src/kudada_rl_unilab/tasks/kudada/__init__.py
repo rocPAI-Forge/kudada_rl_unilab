@@ -11,12 +11,6 @@ TASK_NAMES = (
     "KudadaLateralWalk",
     "KudadaMarchRecover",
 )
-LEGACY_TASK_NAMES = {
-    "TinkerWalkFlat": "KudadaWalkFlat",
-    "TinkerCrouchWalk": "KudadaCrouchWalk",
-    "TinkerLateralWalk": "KudadaLateralWalk",
-    "TinkerMarchRecover": "KudadaMarchRecover",
-}
 
 
 def make_kudada_walk_flat_env(
@@ -31,16 +25,9 @@ def make_kudada_walk_flat_env(
 for _name in TASK_NAMES:
     registry.register_env_config(_name, ManagerBasedRlEnvCfg)
     registry.register_env(_name, make_kudada_walk_flat_env, sim_backend="mujoco")
-for _legacy in LEGACY_TASK_NAMES:
-    registry.register_env_config(_legacy, ManagerBasedRlEnvCfg)
-    registry.register_env(_legacy, make_kudada_walk_flat_env, sim_backend="mujoco")
-
-make_tinker_walk_flat_env = make_kudada_walk_flat_env
 
 __all__ = [
     "TASK_NAME",
     "TASK_NAMES",
-    "LEGACY_TASK_NAMES",
     "make_kudada_walk_flat_env",
-    "make_tinker_walk_flat_env",
 ]

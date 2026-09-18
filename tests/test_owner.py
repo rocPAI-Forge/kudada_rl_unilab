@@ -59,8 +59,6 @@ def test_registry_exposes_mujoco_task():
     for name in ("KudadaCrouchWalk", "KudadaLateralWalk", "KudadaMarchRecover"):
         assert name in registered
         assert "mujoco" in registered[name]["available_backends"]
-    for name in ("TinkerWalkFlat", "TinkerCrouchWalk", "TinkerLateralWalk", "TinkerMarchRecover"):
-        assert name in registered
 
 
 def _materialize_task(task: str, env_name: str):

@@ -66,7 +66,7 @@ uv run --extra rocm kudada-eval --algo sac --task walk-flat --sim mujoco --load-
 ```bash
 export HIP_VISIBLE_DEVICES=0
 uv run --extra rocm kudada-continue --algo sac --task walk-flat --sim mujoco \
-  --load-run roscon/train/2026-09-17_11-54-30_mujoco \
+  --load-run roscon/gaits/walk-flat \
   algo.max_iterations=10000 training.log_root=runs
 ```
 
@@ -74,7 +74,7 @@ uv run --extra rocm kudada-continue --algo sac --task walk-flat --sim mujoco \
 
 ```bash
 export HIP_VISIBLE_DEVICES=0 MUJOCO_GL=osmesa
-KUDADA_RUN_DIR=roscon/train/2026-09-17_11-54-30_mujoco \
+KUDADA_RUN_DIR=roscon/gaits/walk-flat \
   uv run --extra rocm python scripts/record_gait_video.py
 ```
 
