@@ -1,8 +1,8 @@
 # @package _global_
-# Tinker Lingzu 10-DoF command-conditioned flat-ground walking task.
+# Kudada 10-DoF command-conditioned flat-ground walking task.
 env:
   scene:
-    model_file: assets/robots/tinker_lingzu/mjcf/scene_flat.xml
+    model_file: assets/robots/kudada/mjcf/scene_flat.xml
     default_keyframe_name: home
     entities:
       robot:
@@ -66,7 +66,7 @@ env:
           func: unilab.envs.mdp.generated_commands
           params: {command_name: twist}
         gait_phase:
-          func: roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase
+          func: kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase
           params: {frequency: 1.0, init_mode: offset_phase}
     critic:
       terms:
@@ -88,7 +88,7 @@ env:
           func: unilab.envs.mdp.generated_commands
           params: {command_name: twist}
         gait_phase:
-          func: roscon_rl_unilab.tasks.tinker.manager_terms.TinkerGaitPhase
+          func: kudada_rl_unilab.tasks.kudada.manager_terms.KudadaGaitPhase
           params: {frequency: 1.0, init_mode: offset_phase}
         base_lin_vel:
           func: unilab.envs.mdp.builtin_sensor
@@ -103,7 +103,7 @@ env:
       use_default_offset: true
   commands:
     twist:
-      _target_: roscon_rl_unilab.tasks.tinker.manager_terms.TinkerVelocityCommandCfg
+      _target_: kudada_rl_unilab.tasks.kudada.manager_terms.KudadaVelocityCommandCfg
       entity_name: robot
       resampling_time_range: [10.0, 10.0]
       heading_command: false
@@ -152,14 +152,14 @@ env:
       func: unilab.envs.mdp.time_out
       time_out: true
     tilt:
-      func: roscon_rl_unilab.tasks.tinker.manager_terms.tilt_exceeded
+      func: kudada_rl_unilab.tasks.kudada.manager_terms.tilt_exceeded
       params: {max_tilt_deg: 65.0}
     base_height:
       func: unilab.envs.mdp.root_height_below_minimum
       params: {minimum_height: 0.12}
   curriculum:
     penalty_scaling:
-      func: roscon_rl_unilab.tasks.tinker.manager_terms.TinkerPenaltyCurriculum
+      func: kudada_rl_unilab.tasks.kudada.manager_terms.KudadaPenaltyCurriculum
       params:
         initial_scale: 0.5
         min_scale: 0.5
@@ -197,19 +197,19 @@ reward:
     func: unilab.envs.mdp.action_rate_l2
     weight: -2.0
   pose:
-    func: roscon_rl_unilab.tasks.tinker.manager_terms.weighted_pose
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.weighted_pose
     weight: -0.5
     params:
       pose_weights: [5.0, 1.0, 0.01, 0.01, 5.0, 5.0, 1.0, 0.01, 0.01, 5.0]
   penalty_close_feet_xy:
-    func: roscon_rl_unilab.tasks.tinker.manager_terms.penalty_close_feet_xy
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.penalty_close_feet_xy
     weight: -10.0
     params: {threshold: 0.15}
   penalty_feet_ori:
-    func: roscon_rl_unilab.tasks.tinker.manager_terms.penalty_feet_ori
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.penalty_feet_ori
     weight: -5.0
   feet_phase:
-    func: roscon_rl_unilab.tasks.tinker.manager_terms.feet_phase
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.feet_phase
     weight: 5.0
     params:
       frequency: 1.0

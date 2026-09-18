@@ -6,7 +6,7 @@ import mujoco
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ROOT / "assets" / "robots" / "tinker_lingzu"
+ASSETS = ROOT / "assets" / "robots" / "kudada"
 JOINTS = (
     "left_leg_hip_yaw_joint", "left_leg_hip_roll_joint", "left_leg_hip_pitch_joint",
     "left_leg_knee_pitch_joint", "left_leg_ankle_pitch_joint",
@@ -16,12 +16,12 @@ JOINTS = (
 
 
 def test_dual_asset_trees_present():
-    assert (ASSETS / "urdf" / "tinker_lingzu.urdf").is_file()
-    assert (ASSETS / "mjcf" / "tinker_lingzu.xml").is_file()
+    assert (ASSETS / "urdf" / "kudada.urdf").is_file()
+    assert (ASSETS / "mjcf" / "kudada.xml").is_file()
     assert (ASSETS / "mjcf" / "scene_flat.xml").is_file()
     assert len(list((ASSETS / "urdf" / "meshes").glob("*.STL"))) == 11
     assert len(list((ASSETS / "mjcf" / "assets").glob("*.STL"))) == 11
-    assert ET.parse(ASSETS / "urdf" / "tinker_lingzu.urdf").getroot().tag == "robot"
+    assert ET.parse(ASSETS / "urdf" / "kudada.urdf").getroot().tag == "robot"
 
 
 def test_mjcf_compiles_and_preserves_contract():

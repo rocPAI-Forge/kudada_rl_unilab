@@ -1,6 +1,6 @@
 # Tinker walk-flat: MotrixLab vs UniLab
 
-Same 10-DoF Tinker Lingzu velocity-tracking task, same FastSAC budget
+Same 10-DoF Kudada velocity-tracking task, same FastSAC budget
 (2048 envs × 10k iter, batch 2048, 4 updates/step), same MI210, seed 1,
 `sim_dt=5 ms`, `ctrl_dt=20 ms`. One run each for the matched budget;
 UniLab then got two continue-train rounds on top of the first checkpoint.
@@ -16,7 +16,7 @@ vs base/knee contact. Training episode return is not an accuracy metric.
 
 ## Stack
 
-| Layer | tinkerbot_rl | roscon_rl_unilab |
+| Layer | tinkerbot_rl | kudada_rl_unilab |
 |---|---|---|
 | Framework | MotrixLab FastSAC async | UniLab 1.3 + unilab-rl 1.2 FastSAC |
 | Physics | MotrixSim | MuJoCo 3.11 mjbatch |
@@ -28,7 +28,7 @@ vs base/knee contact. Training episode return is not an accuracy metric.
 
 ## Throughput (matched 10k-iter budget)
 
-| Metric | tinkerbot_rl | roscon_rl_unilab (first run) |
+| Metric | tinkerbot_rl | kudada_rl_unilab (first run) |
 |---|---|---|
 | Wall clock | 232 s (3m52s) | 318 s (5m17s) |
 | Steady env-steps/s | 109,222 | 77,096 (Motrix 1.42×) |

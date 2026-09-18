@@ -1,4 +1,4 @@
-from roscon_rl_unilab.cli import build_command, ensure_registry_env
+from kudada_rl_unilab.cli import build_command, ensure_registry_env
 
 
 def test_continue_command_loads_checkpoint():
@@ -22,4 +22,4 @@ def test_train_command_routes_to_sac_owner():
 def test_registry_env_is_idempotent(monkeypatch):
     monkeypatch.setenv("UNILAB_EXTRA_REGISTRY_PACKAGES", "other.tasks")
     ensure_registry_env(); ensure_registry_env()
-    assert __import__("os").environ["UNILAB_EXTRA_REGISTRY_PACKAGES"] == "other.tasks,roscon_rl_unilab.tasks"
+    assert __import__("os").environ["UNILAB_EXTRA_REGISTRY_PACKAGES"] == "other.tasks,kudada_rl_unilab.tasks"

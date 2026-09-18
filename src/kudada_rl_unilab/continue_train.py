@@ -11,7 +11,7 @@ from unilab.cli import package_root
 from unilab.scripts import train_offpolicy as offpolicy
 from unilab.utils.checkpoint import resolve_offpolicy_checkpoint_path
 
-from roscon_rl_unilab.conf_searchpath import register_conf_search_path
+from kudada_rl_unilab.conf_searchpath import register_conf_search_path
 
 _ORIG_BUILD_RUNNER = offpolicy.build_runner
 

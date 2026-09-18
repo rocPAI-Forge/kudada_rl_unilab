@@ -1,3 +1,5 @@
-"""UniLab registry bootstrap for external ROSCon tasks."""
+"""Legacy UniLab registry package name."""
 
-__unilab_registry_modules__ = ("roscon_rl_unilab.tasks.tinker",)
+from kudada_rl_unilab.tasks import *  # noqa: F403
+
+__unilab_registry_modules__ = ("kudada_rl_unilab.tasks.kudada",)

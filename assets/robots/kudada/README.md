@@ -1,4 +1,4 @@
-# Tinker Lingzu assets
+# Kudada assets
 
 - `urdf/`: source URDF and meshes from the original `tinkerbot_rl` repository.
 - `mjcf/`: MuJoCo conversion used by UniLab.

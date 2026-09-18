@@ -11,7 +11,7 @@ from typing import Sequence
 from unilab.cli import package_root as unilab_package_root
 
 CONF_ROOT = Path(__file__).resolve().parent / "conf"
-REGISTRY_PACKAGE = "roscon_rl_unilab.tasks"
+REGISTRY_PACKAGE = "kudada_rl_unilab.tasks"
 EXTRA_PACKAGES_ENV = "UNILAB_EXTRA_REGISTRY_PACKAGES"
 SCRIPT_NAMES = {"sac": "train_sac.py"}
 SUPPORTED_SIMS = ("mujoco",)
@@ -21,13 +21,16 @@ DEFAULT_CONTINUE_RUN = REPO_ROOT / "roscon/train/2026-09-17_11-54-30_mujoco"
 
 def ensure_registry_env() -> None:
     packages = [p.strip() for p in os.environ.get(EXTRA_PACKAGES_ENV, "").split(",") if p.strip()]
+    packages = [
+        "kudada_rl_unilab.tasks" if pkg == "roscon_rl_unilab.tasks" else pkg for pkg in packages
+    ]
     if REGISTRY_PACKAGE not in packages:
         packages.append(REGISTRY_PACKAGE)
     os.environ[EXTRA_PACKAGES_ENV] = ",".join(packages)
 
 
 def build_command(mode: str, argv: Sequence[str] | None = None) -> list[str]:
-    parser = argparse.ArgumentParser(prog=f"roscon-{mode}")
+    parser = argparse.ArgumentParser(prog=f"kudada-{mode}")
     parser.add_argument("--algo", default="sac", choices=tuple(SCRIPT_NAMES))
     parser.add_argument("--task", default="walk-flat")
     parser.add_argument("--sim", default="mujoco", choices=SUPPORTED_SIMS)

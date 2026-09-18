@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-export UNILAB_EXTRA_REGISTRY_PACKAGES="${UNILAB_EXTRA_REGISTRY_PACKAGES:-roscon_rl_unilab.tasks}"
+export UNILAB_EXTRA_REGISTRY_PACKAGES="${UNILAB_EXTRA_REGISTRY_PACKAGES:-kudada_rl_unilab.tasks}"
 PY="${ROOT}/.venv/bin/python"
 mkdir -p "${ROOT}/runs"
 
@@ -13,7 +13,7 @@ start_job() {
   echo "GPU ${gpu}: ${task} seed=${seed} log=${log}"
   nohup env HIP_VISIBLE_DEVICES="${gpu}" \
     UNILAB_EXTRA_REGISTRY_PACKAGES="${UNILAB_EXTRA_REGISTRY_PACKAGES}" \
-    "${PY}" -c "from roscon_rl_unilab.cli import train_main; import sys; raise SystemExit(train_main(sys.argv[1:]))" \
+    "${PY}" -c "from kudada_rl_unilab.cli import train_main; import sys; raise SystemExit(train_main(sys.argv[1:]))" \
     --task "${task}" --sim mujoco \
     "algo.seed=${seed}" \
     "training.no_play=true" \

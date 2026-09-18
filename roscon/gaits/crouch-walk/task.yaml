@@ -8,7 +8,7 @@ defaults:
   - _self_
 
 training:
-  task_name: TinkerCrouchWalk
+  task_name: KudadaCrouchWalk
 
 env:
   actions:
@@ -33,7 +33,7 @@ env:
         lin_vel_y: [-0.2, 0.2]
         ang_vel_z: [-0.5, 0.5]
     height:
-      _target_: roscon_rl_unilab.tasks.tinker.manager_terms.HeightCommandCfg
+      _target_: kudada_rl_unilab.tasks.kudada.manager_terms.HeightCommandCfg
       resampling_time_range: [10.0, 10.0]
       ranges: [0.18, 0.23]
   terminations:
@@ -43,29 +43,29 @@ env:
 
 reward:
   tracking_height:
-    func: roscon_rl_unilab.tasks.tinker.manager_terms.track_base_height
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.track_base_height
     weight: 10.0
     params:
       command_name: height
       tracking_sigma: 0.003
   penalty_height_error:
-    func: roscon_rl_unilab.tasks.tinker.manager_terms.penalty_base_height_error
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.penalty_base_height_error
     weight: -80.0
     params: {command_name: height}
   track_crouch_pose:
-    func: roscon_rl_unilab.tasks.tinker.manager_terms.track_crouch_pose
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.track_crouch_pose
     weight: 6.0
     params:
       joint_targets: [0.0, 0.0, -0.8, 1.35, -0.55, 0.0, 0.0, -0.8, 1.35, -0.55]
       tracking_sigma: 0.5
   penalty_crouch_pose:
-    func: roscon_rl_unilab.tasks.tinker.manager_terms.penalty_crouch_pose_error
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.penalty_crouch_pose_error
     weight: -12.0
     params:
       joint_targets: [0.0, 0.0, -0.8, 1.35, -0.55, 0.0, 0.0, -0.8, 1.35, -0.55]
       joint_weights: [1.0, 10.0, 3.0, 3.0, 2.0, 1.0, 10.0, 3.0, 3.0, 2.0]
   penalty_wide_feet:
-    func: roscon_rl_unilab.tasks.tinker.manager_terms.penalty_wide_feet_xy
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.penalty_wide_feet_xy
     weight: -80.0
     params: {max_width: 0.28}
   pose:

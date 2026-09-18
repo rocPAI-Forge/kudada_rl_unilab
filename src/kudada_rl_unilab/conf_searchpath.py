@@ -14,10 +14,10 @@ def register_conf_search_path() -> None:
 
     algo_dirs = tuple(f"file://{p}" for p in sorted(CONF_ROOT.iterdir()) if p.is_dir())
 
-    class RosconConfSearchPathPlugin(SearchPathPlugin):
+    class KudadaConfSearchPathPlugin(SearchPathPlugin):
         def manipulate_search_path(self, search_path):
             for path in algo_dirs:
-                search_path.append("roscon_rl_unilab", path)
+                search_path.append("kudada_rl_unilab", path)
 
-    Plugins.instance().register(RosconConfSearchPathPlugin)
+    Plugins.instance().register(KudadaConfSearchPathPlugin)
     _registered = True

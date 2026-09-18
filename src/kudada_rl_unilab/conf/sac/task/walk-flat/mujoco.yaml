@@ -4,7 +4,7 @@ defaults:
   - _self_
 
 training:
-  task_name: TinkerWalkFlat
+  task_name: KudadaWalkFlat
   sim_backend: mujoco
   play_env_num: 16
   cam_distance: 3.0

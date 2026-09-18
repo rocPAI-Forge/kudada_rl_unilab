@@ -3,9 +3,9 @@ requires = ["uv_build>=0.12.1,<0.13"]
 build-backend = "uv_build"
 
 [project]
-name = "roscon-rl-unilab"
+name = "kudada-rl-unilab"
 version = "0.1.0"
-description = "Tinker Lingzu 10-DoF walk-flat FastSAC training on UniLab and MuJoCo"
+description = "Kudada 10-DoF walk-flat FastSAC training on UniLab and MuJoCo"
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10,<3.14"
@@ -21,12 +21,13 @@ rocm = [
 ]
 
 [project.scripts]
-roscon-train = "roscon_rl_unilab.cli:train_main"
-roscon-eval = "roscon_rl_unilab.cli:eval_main"
-roscon-continue = "roscon_rl_unilab.cli:continue_main"
+kudada-train = "kudada_rl_unilab.cli:train_main"
+kudada-eval = "kudada_rl_unilab.cli:eval_main"
+kudada-continue = "kudada_rl_unilab.cli:continue_main"
 
 [project.entry-points."unilab.tasks"]
-roscon = "roscon_rl_unilab.tasks"
+kudada = "kudada_rl_unilab.tasks"
+roscon = "kudada_rl_unilab.tasks"
 
 [dependency-groups]
 dev = ["pytest>=8.0"]

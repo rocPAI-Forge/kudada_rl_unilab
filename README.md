@@ -1,15 +1,15 @@
-# roscon_rl_unilab
+# kudada_rl_unilab
 
-Tinker Lingzu (Nano1) 10-DoF 双足机器人平地速度跟踪训练仓库，基于
+Kudada (Nano1) 10-DoF 双足机器人平地速度跟踪训练仓库，基于
 [UniLab](https://github.com/Motphys/UniLab) 的外部任务接入机制构建。
 
-![Tinker Lingzu 正/侧/背三视图](roscon/renders/tinker_views.png)
+![Kudada 正/侧/背三视图](roscon/renders/kudada_views.png)
 
 步态以 `roscon/gaits/<task>/play.mp4` 展示；外形以这张多视角图为准。
 
 本仓库不复制 UniLab 的 runner/learner/collector：
 
-- `UNILAB_EXTRA_REGISTRY_PACKAGES` 注入 `TinkerWalkFlat` 环境注册；
+- `UNILAB_EXTRA_REGISTRY_PACKAGES` 注入 `KudadaWalkFlat` 环境注册；
 - Hydra `--config-dir` 注入 `task=walk-flat/mujoco` owner 配置；
 - `unilab` 的 `sac` 入口运行 FastSAC 双缓冲异步训练；
 - 物理后端固定为 MuJoCo。
@@ -18,8 +18,8 @@ Tinker Lingzu (Nano1) 10-DoF 双足机器人平地速度跟踪训练仓库，基
 
 两套模型都随仓库保存：
 
-- `assets/robots/tinker_lingzu/urdf/`：原始 SolidWorks URDF 与 11 个 STL；
-- `assets/robots/tinker_lingzu/mjcf/`：修正后的 MuJoCo MJCF、平地 scene 与 STL。
+- `assets/robots/kudada/urdf/`：原始 SolidWorks URDF 与 11 个 STL；
+- `assets/robots/kudada/mjcf/`：修正后的 MuJoCo MJCF、平地 scene 与 STL。
 
 MJCF 显式保留了 URDF 的质量/惯量、10 个关节限位，并补齐：
 
@@ -44,28 +44,28 @@ uv sync --extra rocm
 
 ```bash
 export HIP_VISIBLE_DEVICES=0
-uv run --extra rocm roscon-train --algo sac --task walk-flat --sim mujoco
+uv run --extra rocm kudada-train --algo sac --task walk-flat --sim mujoco
 ```
 
 短程冒烟：
 
 ```bash
 export HIP_VISIBLE_DEVICES=0
-uv run --extra rocm roscon-train --algo sac --task walk-flat --sim mujoco \
+uv run --extra rocm kudada-train --algo sac --task walk-flat --sim mujoco \
   algo.num_envs=4 algo.max_iterations=2 training.no_play=true training.play_env_num=4
 ```
 
 回放最近一次 run：
 
 ```bash
-uv run --extra rocm roscon-eval --algo sac --task walk-flat --sim mujoco --load-run -1
+uv run --extra rocm kudada-eval --algo sac --task walk-flat --sim mujoco --load-run -1
 ```
 
 从已有 checkpoint 续训（默认加载归档的最终策略）：
 
 ```bash
 export HIP_VISIBLE_DEVICES=0
-uv run --extra rocm roscon-continue --algo sac --task walk-flat --sim mujoco \
+uv run --extra rocm kudada-continue --algo sac --task walk-flat --sim mujoco \
   --load-run roscon/train/2026-09-17_11-54-30_mujoco \
   algo.max_iterations=10000 training.log_root=runs
 ```
@@ -74,7 +74,7 @@ uv run --extra rocm roscon-continue --algo sac --task walk-flat --sim mujoco \
 
 ```bash
 export HIP_VISIBLE_DEVICES=0 MUJOCO_GL=osmesa
-TINKER_RUN_DIR=roscon/train/2026-09-17_11-54-30_mujoco \
+KUDADA_RUN_DIR=roscon/train/2026-09-17_11-54-30_mujoco \
   uv run --extra rocm python scripts/record_gait_video.py
 ```
 
@@ -89,9 +89,9 @@ TINKER_RUN_DIR=roscon/train/2026-09-17_11-54-30_mujoco \
 
 | 任务 | 说明 | 录制命令的关键环境变量 |
 | --- | --- | --- |
-| `crouch-walk` | 屈膝低重心行走，基座高度约 0.236 m | `TINKER_TASK=crouch-walk TINKER_VX=0.35 TINKER_HEIGHT=0.20` |
-| `lateral-walk` | 侧向平移行走 | `TINKER_TASK=lateral-walk TINKER_VY=0.3` |
-| `march-recover` | 原地高抬腿并从侧向推力中恢复 | `TINKER_TASK=march-recover TINKER_PUSH_STEP=150 TINKER_PUSH_Y=0.6` |
+| `crouch-walk` | 屈膝低重心行走，基座高度约 0.236 m | `KUDADA_TASK=crouch-walk KUDADA_VX=0.35 KUDADA_HEIGHT=0.20` |
+| `lateral-walk` | 侧向平移行走 | `KUDADA_TASK=lateral-walk KUDADA_VY=0.3` |
+| `march-recover` | 原地高抬腿并从侧向推力中恢复 | `KUDADA_TASK=march-recover KUDADA_PUSH_STEP=150 KUDADA_PUSH_Y=0.6` |
 
 `crouch-walk` 的低重心必须来自屈膝而非劈腿：只奖励基座高度时策略会外展髋关节把腿
 劈开来降低重心，所以配置里同时约束了关节目标（`penalty_crouch_pose`）和横向脚距

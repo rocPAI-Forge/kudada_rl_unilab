@@ -1,4 +1,4 @@
-<mujoco model="tinker_lingzu">
+<mujoco model="kudada">
   <default>
     <default class="robot">
       <joint damping="2" armature="0.01" frictionloss="0.05" />

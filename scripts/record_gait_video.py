@@ -11,7 +11,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-os.environ.setdefault("UNILAB_EXTRA_REGISTRY_PACKAGES", "roscon_rl_unilab.tasks")
+os.environ.setdefault("UNILAB_EXTRA_REGISTRY_PACKAGES", "kudada_rl_unilab.tasks")
 
 import numpy as np
 
@@ -24,12 +24,20 @@ from unilab.visualization.interactive_playback import (
     RslRlPlaybackConfig,
     create_sac_playback_session,
 )
-from roscon_rl_unilab.conf_searchpath import register_conf_search_path
+from kudada_rl_unilab.conf_searchpath import register_conf_search_path
 
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_RUN = REPO / "roscon/train/2026-09-17_11-54-30_mujoco"
 DEFAULT_STEPS = 400
 FPS = 50
+
+
+def _env(name: str, default: str | None = None) -> str | None:
+    for prefix in ("KUDADA_", "TINKER_"):
+        key = prefix + name
+        if key in os.environ:
+            return os.environ[key]
+    return default
 
 
 def compose_cfg(run_dir: Path, task: str):
@@ -135,7 +143,7 @@ def render_video(snapshots: np.ndarray, out_path: Path) -> None:
     import imageio.v2 as imageio
     import mujoco
 
-    xml = REPO / "assets/robots/tinker_lingzu/mjcf/scene_flat.xml"
+    xml = REPO / "assets/robots/kudada/mjcf/scene_flat.xml"
     model = mujoco.MjModel.from_xml_path(str(xml))
     model.vis.global_.offwidth = 960
     model.vis.global_.offheight = 540
@@ -160,21 +168,21 @@ def render_video(snapshots: np.ndarray, out_path: Path) -> None:
 
 
 def main() -> None:
-    run_dir = Path(os.environ.get("TINKER_RUN_DIR", DEFAULT_RUN)).resolve()
-    steps = int(os.environ.get("TINKER_PLAY_STEPS", DEFAULT_STEPS))
-    mode = os.environ.get("TINKER_RECORD_MODE", "all")
-    task = os.environ.get("TINKER_TASK", "walk-flat")
-    vx = float(os.environ.get("TINKER_VX", "0.6"))
-    vy = float(os.environ.get("TINKER_VY", "0.0"))
-    yaw = float(os.environ.get("TINKER_YAW", "0.0"))
-    standing = os.environ.get("TINKER_STANDING", "0") in {"1", "true", "True"}
-    height_raw = os.environ.get("TINKER_HEIGHT")
+    run_dir = Path(_env("RUN_DIR", str(DEFAULT_RUN))).resolve()
+    steps = int(_env("PLAY_STEPS", str(DEFAULT_STEPS)))
+    mode = _env("RECORD_MODE", "all")
+    task = _env("TASK", "walk-flat")
+    vx = float(_env("VX", "0.6"))
+    vy = float(_env("VY", "0.0"))
+    yaw = float(_env("YAW", "0.0"))
+    standing = _env("STANDING", "0") in {"1", "true", "True"}
+    height_raw = _env("HEIGHT")
     height = float(height_raw) if height_raw else None
-    push_step_raw = os.environ.get("TINKER_PUSH_STEP")
+    push_step_raw = _env("PUSH_STEP")
     push_step = int(push_step_raw) if push_step_raw else None
-    push_y = float(os.environ.get("TINKER_PUSH_Y", "0.6"))
+    push_y = float(_env("PUSH_Y", "0.6"))
     snap_path = run_dir / "play_qpos.npy"
-    video_path = Path(os.environ.get("TINKER_VIDEO", str(run_dir / "play_video.mp4")))
+    video_path = Path(_env("VIDEO", str(run_dir / "play_video.mp4")))
     if mode in {"rollout", "all"}:
         snapshots = rollout(
             run_dir, steps, task, (vx, vy, yaw), standing, height, push_step, push_y
