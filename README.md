@@ -77,6 +77,20 @@ TINKER_RUN_DIR=roscon/train/2026-09-17_11-54-30_mujoco \
 归档的训练资产、步态视频、以及与 MotrixLab/`tinkerbot_rl` 的吞吐/延迟/精度对比见
 [`roscon/COMPARISON.md`](roscon/COMPARISON.md)。
 
+## 其它步态
+
+除 `walk-flat` 外还有三个步态任务，最终策略归档在 `roscon/gaits/`：
+
+| 任务 | 说明 | 录制命令的关键环境变量 |
+| --- | --- | --- |
+| `crouch-walk` | 屈膝低重心行走，基座高度约 0.236 m | `TINKER_TASK=crouch-walk TINKER_VX=0.35 TINKER_HEIGHT=0.20` |
+| `lateral-walk` | 侧向平移行走 | `TINKER_TASK=lateral-walk TINKER_VY=0.3` |
+| `march-recover` | 原地高抬腿并从侧向推力中恢复 | `TINKER_TASK=march-recover TINKER_PUSH_STEP=150 TINKER_PUSH_Y=0.6` |
+
+`crouch-walk` 的低重心必须来自屈膝而非劈腿：只奖励基座高度时策略会外展髋关节把腿
+劈开来降低重心，所以配置里同时约束了关节目标（`penalty_crouch_pose`）和横向脚距
+（`penalty_wide_feet`），并把动作缩放放大到 0.8 以让膝关节能够到达蹲姿目标。
+
 ## 测试
 
 ```bash

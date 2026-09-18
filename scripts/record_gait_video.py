@@ -32,33 +32,52 @@ DEFAULT_STEPS = 400
 FPS = 50
 
 
-def compose_cfg(run_dir: Path):
+def compose_cfg(run_dir: Path, task: str):
     register_conf_search_path()
     GlobalHydra.instance().clear()
     with initialize_config_dir(config_dir=str(package_root() / "conf" / "sac"), version_base="1.3"):
+        overrides = [
+            f"task={task}/mujoco",
+            f"algo.load_run={run_dir}",
+            "training.play_env_num=1",
+            "training.export_onnx=false",
+            "env.events.reset_root_state_uniform.params.pose_range.yaw=[0,0]",
+            "env.events.reset_root_state_uniform.params.velocity_range.x=[0,0]",
+            "env.events.reset_root_state_uniform.params.velocity_range.y=[0,0]",
+            "env.events.reset_root_state_uniform.params.velocity_range.z=[0,0]",
+            "env.events.reset_root_state_uniform.params.velocity_range.roll=[0,0]",
+            "env.events.reset_root_state_uniform.params.velocity_range.pitch=[0,0]",
+            "env.events.reset_root_state_uniform.params.velocity_range.yaw=[0,0]",
+            "env.events.pd_gains.params.kp_range=[1.0,1.0]",
+            "env.events.pd_gains.params.kd_range=[1.0,1.0]",
+        ]
+        if task == "march-recover":
+            overrides.append("env.events.push_robot.interval_range_s=[100,100]")
         return compose(
             "config",
-            overrides=[
-                "task=walk-flat/mujoco",
-                f"algo.load_run={run_dir}",
-                "training.play_env_num=1",
-                "training.export_onnx=false",
-                # Match the aligned eval protocol so the clip is a straight run.
-                "env.events.reset_root_state_uniform.params.pose_range.yaw=[0,0]",
-                "env.events.reset_root_state_uniform.params.velocity_range.x=[0,0]",
-                "env.events.reset_root_state_uniform.params.velocity_range.y=[0,0]",
-                "env.events.reset_root_state_uniform.params.velocity_range.z=[0,0]",
-                "env.events.reset_root_state_uniform.params.velocity_range.roll=[0,0]",
-                "env.events.reset_root_state_uniform.params.velocity_range.pitch=[0,0]",
-                "env.events.reset_root_state_uniform.params.velocity_range.yaw=[0,0]",
-                "env.events.pd_gains.params.kp_range=[1.0,1.0]",
-                "env.events.pd_gains.params.kd_range=[1.0,1.0]",
-            ],
+            overrides=overrides,
         )
 
 
-def rollout(run_dir: Path, steps: int) -> np.ndarray:
-    cfg = compose_cfg(run_dir)
+def _force_commands(session, vx: float, vy: float, yaw: float, standing: bool, height: float | None) -> None:
+    twist = session.env.command_manager.get_term("twist")
+    twist.vel_command_b[:] = (vx, vy, yaw)
+    twist.is_standing_env[:] = standing
+    if height is not None:
+        session.env.command_manager.get_term("height").command[:] = height
+
+
+def rollout(
+    run_dir: Path,
+    steps: int,
+    task: str,
+    cmd,
+    standing: bool,
+    height: float | None,
+    push_step: int | None,
+    push_y: float,
+) -> np.ndarray:
+    cfg = compose_cfg(run_dir, task)
     override = build_offpolicy_play_env_cfg_override("sac", cfg)
     session, _, ckpt = create_sac_playback_session(
         playback_cfg=RslRlPlaybackConfig(
@@ -80,12 +99,19 @@ def rollout(run_dir: Path, steps: int) -> np.ndarray:
     if ckpt is None:
         raise SystemExit("checkpoint was not loaded")
     session.reset()
-    twist = session.env.command_manager.get_term("twist")
-    twist.vel_command_b[:] = (0.6, 0.0, 0.0)
-    twist.is_standing_env[:] = False
-    print("forced command vx=0.6 m/s")
+    vx, vy, yaw = cmd
+    _force_commands(session, vx, vy, yaw, standing, height)
+    print(f"forced command vx={vx} vy={vy} yaw={yaw} standing={standing} height={height}")
     snaps = [session.physics_state().copy()]
-    for _ in range(steps):
+    for step in range(steps):
+        _force_commands(session, vx, vy, yaw, standing, height)
+        if push_step is not None and step == push_step:
+            robot = session.env.scene["robot"]
+            robot.apply_root_velocity_delta_to_sim(
+                np.array([[0.0, push_y, 0.0]], dtype=np.float32),
+                None,
+            )
+            print(f"fixed lateral push at t={step * 0.02:.2f}s: dv_y={push_y} m/s")
         session.step_once()
         snaps.append(session.physics_state().copy())
     arr = np.stack(snaps, axis=0)
@@ -137,10 +163,22 @@ def main() -> None:
     run_dir = Path(os.environ.get("TINKER_RUN_DIR", DEFAULT_RUN)).resolve()
     steps = int(os.environ.get("TINKER_PLAY_STEPS", DEFAULT_STEPS))
     mode = os.environ.get("TINKER_RECORD_MODE", "all")
+    task = os.environ.get("TINKER_TASK", "walk-flat")
+    vx = float(os.environ.get("TINKER_VX", "0.6"))
+    vy = float(os.environ.get("TINKER_VY", "0.0"))
+    yaw = float(os.environ.get("TINKER_YAW", "0.0"))
+    standing = os.environ.get("TINKER_STANDING", "0") in {"1", "true", "True"}
+    height_raw = os.environ.get("TINKER_HEIGHT")
+    height = float(height_raw) if height_raw else None
+    push_step_raw = os.environ.get("TINKER_PUSH_STEP")
+    push_step = int(push_step_raw) if push_step_raw else None
+    push_y = float(os.environ.get("TINKER_PUSH_Y", "0.6"))
     snap_path = run_dir / "play_qpos.npy"
-    video_path = run_dir / "play_video.mp4"
+    video_path = Path(os.environ.get("TINKER_VIDEO", str(run_dir / "play_video.mp4")))
     if mode in {"rollout", "all"}:
-        snapshots = rollout(run_dir, steps)
+        snapshots = rollout(
+            run_dir, steps, task, (vx, vy, yaw), standing, height, push_step, push_y
+        )
         np.save(snap_path, snapshots)
         print(f"saved {snap_path}")
     else:

@@ -1,0 +1,25 @@
+# @package _global_
+# Heading-locked lateral / crab-step gait. vx stays small; vy is the primary command.
+defaults:
+  - /task/walk-flat/mujoco
+  - _self_
+
+training:
+  task_name: TinkerLateralWalk
+
+env:
+  commands:
+    twist:
+      rel_standing_envs: 0.1
+      ranges:
+        lin_vel_x: [-0.15, 0.15]
+        lin_vel_y: [-0.4, 0.4]
+        ang_vel_z: [-0.15, 0.15]
+
+reward:
+  tracking_ang_vel:
+    weight: 4.0
+  feet_phase:
+    params:
+      min_forward_speed: 0.0
+      swing_height: 0.05

@@ -1,0 +1,50 @@
+# @package _global_
+# In-place marching with periodic velocity kicks (push recovery).
+defaults:
+  - /task/walk-flat/mujoco
+  - _self_
+
+training:
+  task_name: TinkerMarchRecover
+
+env:
+  observations:
+    policy:
+      terms:
+        gait_phase:
+          params: {frequency: 1.25, init_mode: offset_phase}
+    critic:
+      terms:
+        gait_phase:
+          params: {frequency: 1.25, init_mode: offset_phase}
+  commands:
+    twist:
+      rel_standing_envs: 0.0
+      ranges:
+        lin_vel_x: [0.0, 0.0]
+        lin_vel_y: [0.0, 0.0]
+        ang_vel_z: [0.0, 0.0]
+  events:
+    push_robot:
+      func: unilab.envs.mdp.push_by_setting_velocity
+      mode: interval
+      interval_range_s: [2.5, 4.0]
+      params:
+        velocity_range:
+          x: [-0.6, 0.6]
+          y: [-0.6, 0.6]
+          z: [0.0, 0.0]
+
+reward:
+  feet_phase:
+    weight: 15.0
+    params:
+      frequency: 1.25
+      swing_height: 0.11
+      tracking_sigma: 0.004
+      min_forward_speed: 0.0
+      command_name: twist
+  tracking_lin_vel:
+    weight: 6.0
+  tracking_ang_vel:
+    weight: 4.0

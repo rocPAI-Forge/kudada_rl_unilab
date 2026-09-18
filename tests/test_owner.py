@@ -56,3 +56,44 @@ def test_registry_exposes_mujoco_task():
     registered = registry.list_registered_envs()
     assert "TinkerWalkFlat" in registered
     assert "mujoco" in registered["TinkerWalkFlat"]["available_backends"]
+    for name in ("TinkerCrouchWalk", "TinkerLateralWalk", "TinkerMarchRecover"):
+        assert name in registered
+        assert "mujoco" in registered[name]["available_backends"]
+
+
+def _materialize_task(task: str, env_name: str):
+    GlobalHydra.instance().clear()
+    with initialize_config_dir(config_dir=str(package_root() / "conf" / "sac"), version_base="1.3"):
+        cfg = compose("config", overrides=[f"task={task}/mujoco"])
+    registry.ensure_registries()
+    override = BackendAdapter(cfg, root_dir=ROOT, algo_name="sac").build_task_env_cfg_override()
+    env_cfg = registry.materialize_env_config(env_name)
+    apply_cfg_overrides(env_cfg, override)
+    env_cfg.validate()
+    return cfg, env_cfg
+
+
+def test_crouch_walk_adds_height_command():
+    cfg, env_cfg = _materialize_task("crouch-walk", "TinkerCrouchWalk")
+    assert cfg.training.task_name == "TinkerCrouchWalk"
+    assert "height" in env_cfg.commands
+    assert "tracking_height" in env_cfg.rewards
+    assert "track_crouch_pose" in env_cfg.rewards
+    assert "penalty_wide_feet" in env_cfg.rewards
+    assert env_cfg.rewards["pose"].params["pose_weights"][1] >= 5.0
+
+
+def test_lateral_walk_narrows_forward_speed():
+    cfg, env_cfg = _materialize_task("lateral-walk", "TinkerLateralWalk")
+    assert cfg.training.task_name == "TinkerLateralWalk"
+    assert tuple(env_cfg.commands["twist"].ranges.lin_vel_y) == (-0.4, 0.4)
+    assert env_cfg.commands["twist"].ranges.lin_vel_x[1] <= 0.15
+
+
+def test_march_recover_pushes_during_episode():
+    cfg, env_cfg = _materialize_task("march-recover", "TinkerMarchRecover")
+    assert cfg.training.task_name == "TinkerMarchRecover"
+    assert env_cfg.events["push_robot"].mode == "interval"
+    assert env_cfg.commands["twist"].rel_standing_envs == 0.0
+    assert tuple(env_cfg.commands["twist"].ranges.lin_vel_x) == (0.0, 0.0)
+    assert env_cfg.rewards["feet_phase"].params["swing_height"] >= 0.1
