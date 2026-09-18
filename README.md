@@ -3,6 +3,10 @@
 Tinker Lingzu (Nano1) 10-DoF 双足机器人平地速度跟踪训练仓库，基于
 [UniLab](https://github.com/Motphys/UniLab) 的外部任务接入机制构建。
 
+![Tinker Lingzu 正/侧/背三视图](roscon/renders/tinker_views.png)
+
+步态以 `roscon/gaits/<task>/play.mp4` 展示；外形以这张多视角图为准。
+
 本仓库不复制 UniLab 的 runner/learner/collector：
 
 - `UNILAB_EXTRA_REGISTRY_PACKAGES` 注入 `TinkerWalkFlat` 环境注册；
