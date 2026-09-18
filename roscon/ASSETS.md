@@ -28,10 +28,7 @@
 
 walk-flat 的对比实验（第一轮 10k、continue-1、continue-2 全量 checkpoint）仍放在 `roscon/train/`，见 `COMPARISON.md`。`gaits/walk-flat/` 只收**最终合格**那一套。
 
-外形截图保存在 `roscon/renders/`：
-
-- `tinker_views.png`：机器人多视角外形
-- `tinker_walk_unilab_r2_end.png`：walk-flat 合格策略回放末帧（外形 + 步态姿态）
+外形截图保存在 `roscon/renders/tinker_views.png`（多视角外形）。步态观感以各目录的 `play.mp4` 为准。
 
 ## 怎么从归档复现
 
