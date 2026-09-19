@@ -11,3 +11,7 @@ events.out.tfevents.*
 
 runs/
 smoke_runs/
+
+# gaits/: only the accepted checkpoint is tracked; extra iter/version files stay local.
+gaits/**/*.pt
+!gaits/**/model_10000.pt

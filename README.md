@@ -92,6 +92,7 @@ KUDADA_RUN_DIR=gaits/walk-flat \
 [`kudada_gaits_2x2.mp4`](renders/kudada_gaits_2x2.mp4)；
 每个合格步态的完整资产在 `gaits/<task>/`：
 `task.yaml`（训练/奖励设计）、`run_config.json`（该次训练展开后的参数）、`model_10000.pt`、单步态 `play.mp4`。
+每个步态只入库当前验收的那一份 `model_10000.pt`，中间 checkpoint 留在 `runs/`。
 
 | 任务 | 说明 | 录制命令的关键环境变量 |
 | --- | --- | --- |
