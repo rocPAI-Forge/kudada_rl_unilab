@@ -8,7 +8,8 @@ def test_continue_command_loads_checkpoint():
     )
     assert command[1].endswith("continue_train.py")
     assert "task=walk-flat/mujoco" in command
-    assert any(item.startswith("algo.load_run=") for item in command)
+    load_run = next(item for item in command if item.startswith("algo.load_run="))
+    assert load_run.endswith("gaits/walk-flat")
     assert "training.no_play=true" in command
     assert "algo.max_iterations=2" in command
 

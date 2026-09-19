@@ -3,9 +3,13 @@
 Kudada (Nano1) 10-DoF 双足机器人平地速度跟踪训练仓库，基于
 [UniLab](https://github.com/Motphys/UniLab) 的外部任务接入机制构建。
 
-![Kudada 正/侧/背三视图](roscon/renders/kudada_views.png)
+![Kudada 正/侧/背三视图](renders/kudada_views.png)
 
-步态以 `roscon/gaits/<task>/play.mp4` 展示；外形以这张多视角图为准。
+外形以这张多视角图为准。四个已验收步态的一次同屏演示（左上 WalkFlat、右上 CrouchWalk、左下 LateralWalk、右下 MarchRecover；8 秒同步回放）：
+
+<video src="renders/kudada_gaits_2x2.mp4" width="100%" controls muted playsinline></video>
+
+[四步态 2×2 同屏演示 `kudada_gaits_2x2.mp4`](renders/kudada_gaits_2x2.mp4)
 
 本仓库不复制 UniLab 的 runner/learner/collector：
 
@@ -66,7 +70,7 @@ uv run --extra rocm kudada-eval --algo sac --task walk-flat --sim mujoco --load-
 ```bash
 export HIP_VISIBLE_DEVICES=0
 uv run --extra rocm kudada-continue --algo sac --task walk-flat --sim mujoco \
-  --load-run roscon/gaits/walk-flat \
+  --load-run gaits/walk-flat \
   algo.max_iterations=10000 training.log_root=runs
 ```
 
@@ -74,18 +78,20 @@ uv run --extra rocm kudada-continue --algo sac --task walk-flat --sim mujoco \
 
 ```bash
 export HIP_VISIBLE_DEVICES=0 MUJOCO_GL=osmesa
-KUDADA_RUN_DIR=roscon/gaits/walk-flat \
+KUDADA_RUN_DIR=gaits/walk-flat \
   uv run --extra rocm python scripts/record_gait_video.py
 ```
 
 归档的训练资产、步态视频、以及与 MotrixLab/`tinkerbot_rl` 的吞吐/延迟/精度对比见
-[`roscon/COMPARISON.md`](roscon/COMPARISON.md)。合格步态（配置、参数快照、policy、视频）如何分目录见
-[`roscon/ASSETS.md`](roscon/ASSETS.md)。
+[`docs/COMPARISON.md`](docs/COMPARISON.md)。合格步态（配置、参数快照、policy、视频）如何分目录见
+[`gaits/README.md`](gaits/README.md)。
 
 ## 其它步态
 
-除 `walk-flat` 外还有三个步态任务。每个合格步态的完整资产在 `roscon/gaits/<task>/`：
-`task.yaml`（训练/奖励设计）、`run_config.json`（该次训练展开后的参数）、`model_10000.pt`、`play.mp4`。
+除 `walk-flat` 外还有三个步态任务。四个步态一次看完用文首的
+[`kudada_gaits_2x2.mp4`](renders/kudada_gaits_2x2.mp4)；
+每个合格步态的完整资产在 `gaits/<task>/`：
+`task.yaml`（训练/奖励设计）、`run_config.json`（该次训练展开后的参数）、`model_10000.pt`、单步态 `play.mp4`。
 
 | 任务 | 说明 | 录制命令的关键环境变量 |
 | --- | --- | --- |

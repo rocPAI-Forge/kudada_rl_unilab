@@ -27,7 +27,7 @@ from unilab.visualization.interactive_playback import (
 from kudada_rl_unilab.conf_searchpath import register_conf_search_path
 
 REPO = Path(__file__).resolve().parents[1]
-DEFAULT_RUN = REPO / "roscon/gaits/walk-flat"
+DEFAULT_RUN = REPO / "gaits/walk-flat"
 DEFAULT_STEPS = 400
 FPS = 50
 
