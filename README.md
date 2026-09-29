@@ -51,7 +51,7 @@ MJCF 显式保留了 URDF 的质量/惯量、10 个关节限位，并补齐：
 `dev` group 里，`uv sync` 默认会装。
 
 ```bash
-git clone git@github.com:alexhegit/kudada_rl_unilab.git
+git clone git@github.com:rocPAI-Forge/kudada_rl_unilab.git
 cd kudada_rl_unilab
 uv sync --extra rocm
 ```
