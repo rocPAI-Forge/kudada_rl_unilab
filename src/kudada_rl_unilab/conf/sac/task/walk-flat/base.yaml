@@ -108,7 +108,7 @@ env:
       resampling_time_range: [10.0, 10.0]
       heading_command: false
       heading_control_stiffness: 0.5
-      rel_standing_envs: 0.2
+      rel_standing_envs: 0.3
       rel_heading_envs: 0.0
       rel_world_envs: 0.0
       rel_forward_envs: 0.0
@@ -209,14 +209,29 @@ reward:
     func: kudada_rl_unilab.tasks.kudada.manager_terms.penalty_feet_ori
     weight: -5.0
   feet_phase:
-    func: kudada_rl_unilab.tasks.kudada.manager_terms.feet_phase
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.command_gated_feet_phase
     weight: 5.0
     params:
       frequency: 1.0
       swing_height: 0.05
       tracking_sigma: 0.008
-      min_forward_speed: 0.15
       command_name: twist
+      command_threshold: 0.1
+  penalty_stand_lin_vel:
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.penalty_stand_lin_vel
+    weight: -20.0
+    params: {command_name: twist, command_threshold: 0.1}
+  penalty_stand_ang_vel:
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.penalty_stand_ang_vel
+    weight: -5.0
+    params: {command_name: twist, command_threshold: 0.1}
+  penalty_stand_pose:
+    func: kudada_rl_unilab.tasks.kudada.manager_terms.penalty_stand_pose
+    weight: -3.0
+    params:
+      command_name: twist
+      command_threshold: 0.1
+      pose_weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
   alive:
     func: unilab.tasks.locomotion.common.manager_terms.alive
     weight: 10.0

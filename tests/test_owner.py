@@ -48,7 +48,18 @@ def test_owner_materializes():
     assert env_cfg.actions["joint_pos"].scale == 0.5
     assert tuple(env_cfg.commands["twist"].ranges.lin_vel_x) == (-1.0, 1.0)
     assert set(env_cfg.observations) == {"policy", "critic"}
-    assert set(env_cfg.rewards) >= {"tracking_lin_vel", "feet_phase", "alive"}
+    assert set(env_cfg.rewards) >= {
+        "tracking_lin_vel",
+        "feet_phase",
+        "penalty_stand_lin_vel",
+        "penalty_stand_ang_vel",
+        "penalty_stand_pose",
+        "alive",
+    }
+    assert env_cfg.commands["twist"].rel_standing_envs == 0.3
+    assert env_cfg.rewards["feet_phase"].func.__name__ == "command_gated_feet_phase"
+    assert env_cfg.rewards["feet_phase"].params["command_threshold"] == 0.1
+    assert env_cfg.rewards["penalty_stand_lin_vel"].weight == -20.0
 
 
 def test_registry_exposes_mujoco_task():

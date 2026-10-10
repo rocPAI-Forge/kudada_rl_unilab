@@ -38,8 +38,12 @@ __all__ = [
     "KudadaPenaltyCurriculum",
     "KudadaVelocityCommand",
     "KudadaVelocityCommandCfg",
+    "command_gated_feet_phase",
     "feet_phase",
     "penalty_close_feet_xy",
+    "penalty_stand_ang_vel",
+    "penalty_stand_lin_vel",
+    "penalty_stand_pose",
     "penalty_feet_ori",
     "penalty_base_height_error",
     "penalty_wide_feet_xy",
@@ -122,6 +126,116 @@ class penalty_base_height_error(ManagerTermBase):
         height = np.asarray(self._robot.data.root_link_pos_w[:, 2], dtype=get_global_dtype())
         target = env.command_manager.get_command(self._command_name).reshape(env.num_envs)
         return np.square(height - target)
+
+
+def _command_rows(env: ManagerBasedRlEnv, command_name: str) -> np.ndarray:
+    command = np.asarray(env.command_manager.get_command(command_name), dtype=get_global_dtype())
+    return command.reshape(env.num_envs, -1)
+
+
+def _command_norm(env: ManagerBasedRlEnv, command_name: str) -> np.ndarray:
+    command = _command_rows(env, command_name)
+    width = min(3, command.shape[1])
+    return np.linalg.norm(command[:, :width], axis=1)
+
+
+class command_gated_feet_phase(feet_phase):
+    """Swing-foot reward only while the twist command asks for motion.
+
+    The upstream ``feet_phase`` gate uses measured forward speed. Under a zero
+    command that lets a small drift turn the gait reward on and keep the robot
+    walking. This gate follows the command norm instead.
+    """
+
+    _allowed_params = feet_phase._allowed_params | frozenset({"command_threshold"})
+
+    def __init__(self, cfg: ManagerTermBaseCfg, env: ManagerBasedRlEnv):
+        self._command_threshold = float(cfg.params.get("command_threshold", 0.1))
+        if self._command_threshold < 0.0:
+            raise ValueError("command_gated_feet_phase command_threshold must be non-negative")
+        super().__init__(cfg, env)
+
+    def _gate(self, env: ManagerBasedRlEnv) -> np.ndarray:
+        moving = _command_norm(env, self._command_name) >= self._command_threshold
+        return np.asarray(moving, dtype=get_global_dtype())
+
+
+class _StandingCommandTerm(_SensorTerm):
+    """Sensor reward that is active only while the twist command is near zero."""
+
+    _allowed_params = frozenset({"command_name", "command_threshold"})
+
+    def __init__(self, cfg: ManagerTermBaseCfg, env: ManagerBasedRlEnv):
+        super().__init__(cfg, env)
+        command_name = cfg.params.get("command_name", "twist")
+        if not isinstance(command_name, str) or not command_name:
+            raise ValueError(f"{self.name} command_name must be a non-empty string")
+        self._command_name = command_name
+        self._command_threshold = float(cfg.params.get("command_threshold", 0.1))
+        if self._command_threshold < 0.0:
+            raise ValueError(f"{self.name} command_threshold must be non-negative")
+
+    def _standing_mask(self, env: ManagerBasedRlEnv) -> np.ndarray:
+        standing = _command_norm(env, self._command_name) < self._command_threshold
+        return np.asarray(standing, dtype=get_global_dtype())
+
+
+class penalty_stand_lin_vel(_StandingCommandTerm):
+    """Squared horizontal base speed while the command asks the robot to stand."""
+
+    def __init__(self, cfg: ManagerTermBaseCfg, env: ManagerBasedRlEnv):
+        super().__init__(cfg, env)
+        self._linvel = self._bind(("pelvis_local_linvel",))
+
+    def __call__(self, env: ManagerBasedRlEnv, **params: Any) -> np.ndarray:
+        del params
+        values = _state(
+            self.name,
+            "pelvis linear velocity",
+            self._read(self._linvel, self.name),
+            (env.num_envs, 3),
+        )
+        speed_sq = np.square(values[:, 0]) + np.square(values[:, 1])
+        return np.asarray(speed_sq * self._standing_mask(env), dtype=get_global_dtype())
+
+
+class penalty_stand_ang_vel(_StandingCommandTerm):
+    """Squared yaw rate while the command asks the robot to stand."""
+
+    def __init__(self, cfg: ManagerTermBaseCfg, env: ManagerBasedRlEnv):
+        super().__init__(cfg, env)
+        self._gyro = self._bind(("torso_gyro",))
+
+    def __call__(self, env: ManagerBasedRlEnv, **params: Any) -> np.ndarray:
+        del params
+        values = _state(
+            self.name, "torso gyro", self._read(self._gyro, self.name), (env.num_envs, 3)
+        )
+        return np.asarray(np.square(values[:, 2]) * self._standing_mask(env), dtype=get_global_dtype())
+
+
+class penalty_stand_pose(ManagerTermBase):
+    """Joint-pose error from the default pose, active only for a near-zero command."""
+
+    def __init__(self, cfg: ManagerTermBaseCfg, env: ManagerBasedRlEnv):
+        super().__init__(env)
+        command_name = cfg.params.get("command_name", "twist")
+        if not isinstance(command_name, str) or not command_name:
+            raise ValueError("penalty_stand_pose command_name must be a non-empty string")
+        self._command_name = command_name
+        self._command_threshold = float(cfg.params.get("command_threshold", 0.1))
+        if self._command_threshold < 0.0:
+            raise ValueError("penalty_stand_pose command_threshold must be non-negative")
+        weights = cfg.params.get("pose_weights", [1.0] * 10)
+        self._pose_weights = np.asarray(weights, dtype=get_global_dtype())
+        if self._pose_weights.shape != (10,):
+            raise ValueError("penalty_stand_pose pose_weights must have length 10")
+
+    def __call__(self, env: ManagerBasedRlEnv, **params: Any) -> np.ndarray:
+        del params
+        pose_error = weighted_pose(env, self._pose_weights)
+        standing = _command_norm(env, self._command_name) < self._command_threshold
+        return np.asarray(pose_error * standing, dtype=get_global_dtype())
 
 
 class penalty_wide_feet_xy(_SensorTerm):
